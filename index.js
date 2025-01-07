@@ -4,6 +4,7 @@ const chalk = require("chalk")
 
 //internal modules
 const fs = require("fs")
+const { error } = require("console")
 
 clearTerminal()
 operation()
@@ -16,7 +17,7 @@ function operation(){
         choices: 
         [
             'Criar conta',
-            'Consultar Saldo',
+            'Consultar saldo',
             'Depositar',
             'Sacar',
             'Sair',
@@ -29,10 +30,8 @@ function operation(){
 
         if(action === 'Criar conta'){
             createAccount()
-        }else if(action === 'Criar conta'){
-
         }else if(action === 'Consultar saldo'){
-
+            getAccountBalance()
         }else if(action === 'Depositar'){
             deposit()
         }else if(action === 'Sacar'){
@@ -157,4 +156,29 @@ function getAccount(accountName){
     })
 
     return JSON.parse(accountJSON)
+}
+
+function getAccountBalance(){
+    inquirer.prompt([
+        {
+            name: 'nameAccount',
+            message: 'Digite o nome da conta: '
+        }])
+        .then((answer)=>{
+            const nameAccount = answer['nameAccount']
+            
+            if(!checkAccount(nameAccount)){
+                clearTerminal()
+                console.log(chalk.bgYellow.black(`A conta com o nome ${chalk.bgRed(nameAccount)} está errada ou não existe, digite novamente!`))
+                return getAccountBalance()
+            }
+
+            const accountData = getAccount(nameAccount)
+
+            clearTerminal()
+            console.log(chalk.green(`O saldo é de R$${accountData.balance} na conta ${nameAccount}`))
+            operation()
+        })
+        .catch((err) => console.log(err))
+    
 }
