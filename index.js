@@ -29,6 +29,17 @@ function operation(){
 
         if(action === 'Criar conta'){
             createAccount()
+        }else if(action === 'Criar conta'){
+
+        }else if(action === 'Consultar saldo'){
+
+        }else if(action === 'Depositar'){
+
+        }else if(action === 'Sacar'){
+        
+        }else if(action === 'Sair'){
+            console.log(chalk.bgBlue.black('Sessão finalizada, obrigado!'))
+            process.exit()
         }else{
             console.log(chalk.bgRed(`Desculpe! A opção '${action}' ainda está sendo implementada`))
             operation()
