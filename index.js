@@ -34,7 +34,7 @@ function operation(){
         }else if(action === 'Consultar saldo'){
 
         }else if(action === 'Depositar'){
-
+            deposit()
         }else if(action === 'Sacar'){
         
         }else if(action === 'Sair'){
@@ -90,4 +90,71 @@ function buildAccount(){
 //clear terminal
 function clearTerminal(){
     console.clear()
+}
+
+//add an amount to user account
+function deposit(){
+    inquirer.prompt([
+        {
+            name: 'nameAccount',
+            message: 'Qual o nome da sua conta?'
+        }
+    ])
+    .then((answer)=>{
+        const nameAccount = answer['nameAccount']
+
+        if(!checkAccount(nameAccount)){
+            return deposit()
+        }
+
+        inquirer.prompt([
+            {
+                name: 'amount',
+                message: 'Quando você deseja depositar:'
+            }
+        ])
+        .then((answer)=>{
+            addAmount(nameAccount, answer['amount'])
+        })
+        .catch((err)=>{console.log(err)})
+
+    })
+    .catch((err)=>{console.log(err)})
+}
+
+function checkAccount(accountName){
+    if(!fs.existsSync(`accounts/${accountName}.json`)){
+        clearTerminal()
+        console.log(chalk.bgYellow.black(`A conta com o nome ${chalk.bgRed(accountName)} está errada ou não existe, digite novamente!`))
+        return false
+    }
+    return true
+}
+
+function addAmount(accountName, amount){
+    const accountData = getAccount(accountName)
+
+    if(!amount){
+        clearTerminal()
+        console.log(chalk.bgRed.black('Ocorreu um erro, tente novamente!'))
+        return deposit()
+    }
+    accountData.balance = parseFloat(amount) + parseFloat(accountData.balance)
+
+    fs.writeFileSync(`accounts/${accountName}.json`, JSON.stringify(accountData), function(err){
+        console.log(err)
+    })
+
+    clearTerminal()
+    console.log(chalk.green(`Foi depositado o valor de R$${amount} na conta ${accountName}`))
+    operation()
+}
+
+function getAccount(accountName){
+    const accountJSON = fs.readFileSync(`accounts/${accountName}.json`,{
+        encoding: 'utf-8',
+        flag: 'r'
+    })
+
+    return JSON.parse(accountJSON)
 }
