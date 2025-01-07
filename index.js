@@ -35,7 +35,7 @@ function operation(){
         }else if(action === 'Depositar'){
             deposit()
         }else if(action === 'Sacar'){
-        
+            withdraw()
         }else if(action === 'Sair'){
             console.log(chalk.bgBlue.black('Sessão finalizada, obrigado!'))
             process.exit()
@@ -181,4 +181,60 @@ function getAccountBalance(){
         })
         .catch((err) => console.log(err))
     
+}
+
+//withdraw an amount from user account
+function withdraw(){
+    inquirer.prompt([
+        {
+            name: 'nameAccount',
+            message: 'Digite o nome da conta: '
+        }])
+        .then((answer)=>{
+            const nameAccount = answer['nameAccount']
+            
+            if(!checkAccount(nameAccount)){
+                clearTerminal()
+                console.log(chalk.bgYellow.black(`A conta com o nome ${chalk.bgRed(nameAccount)} está errada ou não existe, digite novamente!`))
+                return withdraw()
+            }
+
+            inquirer.prompt([
+                {
+                    name: 'amount',
+                    message: 'Digite o valor para sacar: '
+                }])
+                .then((answer)=>{
+                    const amount = answer['amount']
+                    
+                    removeAmount(nameAccount, amount)
+                })
+                .catch((err) => console.log(err))
+        })
+        .catch((err) => console.log(err))
+}
+
+function removeAmount(accountName, amount){
+    const accountData = getAccount(accountName)
+
+    if(!amount){
+        clearTerminal()
+        console.log(chalk.bgRed.black('Ocorreu um erro, tente novamente!'))
+        return withdraw()
+    }
+    const checkAmount = parseFloat(accountData.balance) - parseFloat(amount)
+    
+    if(checkAmount < 0){
+        console.log(chalk.bgRed.black('Saldo insuficiente, tente novamente!'))
+        return withdraw()
+    }else{
+        accountData.balance = checkAmount
+        fs.writeFileSync(`accounts/${accountName}.json`, JSON.stringify(accountData), function(err){
+            console.log(err)
+        })
+    }
+    
+    clearTerminal()
+    console.log(chalk.green(`Foi retirado o valor de R$${amount} na conta ${accountName}`))
+    operation()
 }
