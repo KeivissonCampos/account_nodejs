@@ -70,7 +70,7 @@ function buildAccount(){
         if(!fs.existsSync('accounts')){
             fs.mkdirSync('accounts')
         }
-        if(fs.existsSync(`accounts/${nameAccount}.json`)){
+        if(checkAccount(nameAccount)){
             clearTerminal()
             console.log(chalk.bgYellow.black(`A conta com o nome ${chalk.bgRed(nameAccount)} já existe, escolha outro nome!`))
             buildAccount()
@@ -104,6 +104,8 @@ function deposit(){
         const nameAccount = answer['nameAccount']
 
         if(!checkAccount(nameAccount)){
+            clearTerminal()
+            console.log(chalk.bgYellow.black(`A conta com o nome ${chalk.bgRed(nameAccount)} está errada ou não existe, digite novamente!`))
             return deposit()
         }
 
@@ -124,8 +126,6 @@ function deposit(){
 
 function checkAccount(accountName){
     if(!fs.existsSync(`accounts/${accountName}.json`)){
-        clearTerminal()
-        console.log(chalk.bgYellow.black(`A conta com o nome ${chalk.bgRed(accountName)} está errada ou não existe, digite novamente!`))
         return false
     }
     return true
